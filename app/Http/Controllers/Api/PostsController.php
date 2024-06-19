@@ -8,6 +8,8 @@ use App\Http\Requests\Api\Posts\PostStoreRequest;
 use App\Http\Resources\Api\PostsResource;
 use App\Models\Api\Posts;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 class PostsController extends Controller
 {
     /**
@@ -32,13 +34,22 @@ class PostsController extends Controller
      * Store a newly created resource in storage.
      */
 
-    public function store(PostStoreRequest $request)
+    public function store(Request $request)
     {
-        $data = Posts::create($request->get());
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'desc' => 'required',
+        ]);
+        if ($validator->fails()) {
+             return $this->apiResponse(null, 400, $validator->errors()->first());
+        }
+
+        $data = Posts::create($request->all());
         if(!empty($data)){
             return $this->apiResponse(new PostsResource($data),201,'data has been saved');
         }
         return $this->apiResponse($data,400,'data not saved');
+
     }
 
     /**
@@ -66,7 +77,20 @@ class PostsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'desc' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->apiResponse(null, 400, $validator->errors()->first());
+        }
+        $data= Posts::Find($id);
+        if(!empty($data)){
+        $data->update($request->all());
+            return $this->apiResponse(new PostsResource($data),201,'data has been updated');
+        }
+        return $this->apiResponse($data,400,'data not found');
+
     }
 
     /**

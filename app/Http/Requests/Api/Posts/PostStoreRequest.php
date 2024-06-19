@@ -31,19 +31,6 @@ class PostStoreRequest extends FormRequest
         return [
             'title.required' => 'The title field is required.',
             'desc.required' => 'The description field is required.',
-            // Add other custom messages as needed
         ];
-    }
-    protected function failedValidation(Validator $validator)
-    {
-        $errors = $validator->errors()->all();
-
-        $response = response()->json([
-            'status' => 400,
-            'message' => 'Validation errors',
-            'errors' => $errors,
-        ], 400);
-
-        throw new HttpResponseException($response);
     }
 }
